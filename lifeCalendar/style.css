@@ -1,0 +1,21 @@
+table {
+    margin: 0 auto;
+}
+
+table,
+td {
+    border: 1px solid #333;
+}
+
+.passed {
+    background-color: gray;
+}
+
+td {
+    width: 18px;
+    height: 18px;
+}
+
+body {
+    text-align: center;
+}
