@@ -10,10 +10,47 @@ public class BunnyController : ControllerBase
     {
         new Bunny()
         {
+            Id = 1,
             Name = "Amelia",
             Weight = new List<Weight>()
             {
                 new Weight() { Date = new DateTime(2023,01,21), Value = 1.3m }
+            }
+        },
+        new Bunny()
+        {
+            Id = 2,
+            Name = "Amelia",
+            Weight = new List<Weight>()
+            {
+                new Weight() { Date = new DateTime(2023,01,21), Value = 1.5m }
+            }
+        },
+        new Bunny()
+        {
+            Id = 3,
+            Name = "Amelia",
+            Weight = new List<Weight>()
+            {
+                new Weight() { Date = new DateTime(2023,01,21), Value = 1.0m }
+            }
+        },
+        new Bunny()
+        {
+            Id = 4,
+            Name = "Helena",
+            Weight = new List<Weight>()
+            {
+                new Weight() { Date = new DateTime(2023,01,21), Value = 1.3m }
+            }
+        },
+        new Bunny()
+        {
+            Id = 5,
+            Name = "Helena",
+            Weight = new List<Weight>()
+            {
+                new Weight() { Date = new DateTime(2023,01,21), Value = 1.5m }
             }
         },
         
@@ -24,5 +61,18 @@ public class BunnyController : ControllerBase
     public IActionResult GetBunnies()
     {
         return Ok(Bunnies);
+    }
+    
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Bunny))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult GetBunny(int id)
+    {
+        var bunny = Bunnies.FirstOrDefault(bunny => bunny.Id == id);
+        if (bunny == null)
+        {
+            return NotFound();
+        }
+        return Ok(bunny);
     }
 }
