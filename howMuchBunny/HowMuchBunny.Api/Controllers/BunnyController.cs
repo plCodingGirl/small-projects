@@ -1,3 +1,4 @@
+using HowMuchBunny.Api.Model;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HowMuchBunny.Api.Controllers;
@@ -53,6 +54,15 @@ public class BunnyController : ControllerBase
                 new Weight() { Date = new DateTime(2023,01,21), Value = 1.5m }
             }
         },
+        new Bunny()
+        {
+            Id = 6,
+            Name = "Niko",
+            Weight = new List<Weight>()
+            {
+                new Weight() { Date = new DateTime(2023, 01, 22), Value = 2.5m }
+            }
+        }
         
     };
 
@@ -74,5 +84,37 @@ public class BunnyController : ControllerBase
             return NotFound();
         }
         return Ok(bunny);
+    }
+
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult DeleteBunny(int id)
+    {
+        var bunny = Bunnies.FirstOrDefault(bunny => bunny.Id == id);
+        if (bunny == null)
+        {
+            return NotFound();
+        }
+
+        Bunnies.Remove(bunny);
+        return NoContent();
+    }
+
+    [HttpPut]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    public IActionResult AddBunny(AddBunnyRequest newBunny)
+    {
+        var bunny = new Bunny()
+        {
+            Id = Bunnies.Count + 1,
+            Name = newBunny.Name,
+            Weight = new List<Weight>()
+            {
+                new Weight() { Date = DateTime.Now, Value = newBunny.Weight }
+            }
+        };
+        Bunnies.Add(bunny);
+        return Created("", bunny);
     }
 }
