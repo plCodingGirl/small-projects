@@ -7,64 +7,7 @@ namespace HowMuchBunny.Api.Controllers;
 [Route("[controller]")]
 public class BunnyController : ControllerBase
 {
-    private static readonly List<Bunny> Bunnies = new List<Bunny>()
-    {
-        new Bunny()
-        {
-            Id = 1,
-            Name = "Amelia",
-            Weight = new List<Weight>()
-            {
-                new Weight() { Date = new DateTime(2023,01,21), Value = 1.3m }
-            }
-        },
-        new Bunny()
-        {
-            Id = 2,
-            Name = "Amelia",
-            Weight = new List<Weight>()
-            {
-                new Weight() { Date = new DateTime(2023,01,21), Value = 1.5m }
-            }
-        },
-        new Bunny()
-        {
-            Id = 3,
-            Name = "Amelia",
-            Weight = new List<Weight>()
-            {
-                new Weight() { Date = new DateTime(2023,01,21), Value = 1.0m }
-            }
-        },
-        new Bunny()
-        {
-            Id = 4,
-            Name = "Helena",
-            Weight = new List<Weight>()
-            {
-                new Weight() { Date = new DateTime(2023,01,21), Value = 1.3m }
-            }
-        },
-        new Bunny()
-        {
-            Id = 5,
-            Name = "Helena",
-            Weight = new List<Weight>()
-            {
-                new Weight() { Date = new DateTime(2023,01,21), Value = 1.5m }
-            }
-        },
-        new Bunny()
-        {
-            Id = 6,
-            Name = "Niko",
-            Weight = new List<Weight>()
-            {
-                new Weight() { Date = new DateTime(2023, 01, 22), Value = 2.5m }
-            }
-        }
-        
-    };
+    private static readonly List<Bunny> Bunnies = new List<Bunny>();
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Bunny>))]
@@ -115,6 +58,20 @@ public class BunnyController : ControllerBase
             }
         };
         Bunnies.Add(bunny);
+        return Created("", bunny);
+    }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult AddWeight(int id, AddWeightRequest newWeight)
+    {
+        var bunny = Bunnies.FirstOrDefault(bunny => bunny.Id == id);
+        if (bunny == null)
+        {
+            return NotFound();
+        }
+        bunny.Weight.Add(new Weight() {Date = DateTime.Now, Value = newWeight.Weight});
         return Created("", bunny);
     }
 }
