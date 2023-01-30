@@ -1,5 +1,6 @@
 using HowMuchBunny.Api.Model;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace HowMuchBunny.Api.Controllers;
 
@@ -7,13 +8,18 @@ namespace HowMuchBunny.Api.Controllers;
 [Route("[controller]")]
 public class BunnyController : ControllerBase
 {
-    private static readonly List<Bunny> Bunnies = new List<Bunny>();
+    private readonly BunnyWeightContext _bunnyContext;
+
+    public BunnyController(BunnyWeightContext bunnyContext)
+    {
+        _bunnyContext = bunnyContext;
+    }
 
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<Bunny>))]
     public IActionResult GetBunnies()
     {
-        return Ok(Bunnies);
+        return Ok(_bunnyContext.Bunnies.Include(b => b.Weight).AsNoTracking());
     }
     
     [HttpGet("{id}")]
@@ -21,7 +27,7 @@ public class BunnyController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult GetBunny(int id)
     {
-        var bunny = Bunnies.FirstOrDefault(bunny => bunny.Id == id);
+        var bunny = _bunnyContext.Bunnies.Include(b => b.Weight).FirstOrDefault(bunny => bunny.Id == id);
         if (bunny == null)
         {
             return NotFound();
@@ -34,13 +40,14 @@ public class BunnyController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult DeleteBunny(int id)
     {
-        var bunny = Bunnies.FirstOrDefault(bunny => bunny.Id == id);
+        var bunny = _bunnyContext.Bunnies.Include(b => b.Weight).FirstOrDefault(bunny => bunny.Id == id);
         if (bunny == null)
         {
             return NotFound();
         }
 
-        Bunnies.Remove(bunny);
+        _bunnyContext.Bunnies.Remove(bunny);
+        _bunnyContext.SaveChanges();
         return NoContent();
     }
 
@@ -50,14 +57,14 @@ public class BunnyController : ControllerBase
     {
         var bunny = new Bunny()
         {
-            Id = Bunnies.Count + 1,
             Name = newBunny.Name,
             Weight = new List<Weight>()
             {
                 new Weight() { Date = DateTime.Now, Value = newBunny.Weight }
             }
         };
-        Bunnies.Add(bunny);
+        _bunnyContext.Add(bunny);
+        _bunnyContext.SaveChanges();
         return Created("", bunny);
     }
 
@@ -66,12 +73,13 @@ public class BunnyController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public IActionResult AddWeight(int id, AddWeightRequest newWeight)
     {
-        var bunny = Bunnies.FirstOrDefault(bunny => bunny.Id == id);
+        var bunny = _bunnyContext.Bunnies.Include(b => b.Weight).FirstOrDefault(bunny => bunny.Id == id);
         if (bunny == null)
         {
             return NotFound();
         }
         bunny.Weight.Add(new Weight() {Date = DateTime.Now, Value = newWeight.Weight});
+        _bunnyContext.SaveChanges();
         return Created("", bunny);
     }
 }
